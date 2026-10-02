@@ -1,6 +1,6 @@
 {
   "name": "ledger-mcp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Intuit's QuickBooks Online MCP server, served remotely over HTTPS with OAuth sign-in and an email allowlist",
   "license": "MIT",

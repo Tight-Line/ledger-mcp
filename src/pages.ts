@@ -119,8 +119,9 @@ ${account}
 <p>Add this MCP server to your assistant:</p>
 <p><code>${escapeHtml(mcpUrl)}</code></p>
 <p class="muted">In Claude, add it as a custom connector. In Claude Code, run
-<code>claude mcp add --transport http ledger ${escapeHtml(mcpUrl)}</code>. Either will send you here to sign in
-the first time.</p>`,
+<code>claude mcp add --scope user --transport http ledger ${escapeHtml(mcpUrl)}</code>, then <code>/mcp</code>
+to sign in. <code>--scope user</code> makes it available in every project, not only the directory you ran it
+in. Either will send you here to sign in the first time.</p>`,
   );
 }
 

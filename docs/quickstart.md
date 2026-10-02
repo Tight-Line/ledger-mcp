@@ -88,7 +88,7 @@ QUICKBOOKS_CLIENT_SECRET
 **Install.**
 
 ```sh
-helm upgrade --install ledger-mcp oci://ghcr.io/tight-line/charts/ledger-mcp --version 0.1.2 \
+helm upgrade --install ledger-mcp oci://ghcr.io/tight-line/charts/ledger-mcp --version 0.1.3 \
   -n ledger-mcp -f path/to/values.yaml --wait
 ```
 
@@ -131,7 +131,9 @@ Development redirect URIs, or differs from it by a character.
 
 - **Claude** (web, desktop, mobile): **Settings → Connectors → Add custom connector**, URL
   `https://HOST/mcp`.
-- **Claude Code**: `claude mcp add --transport http ledger https://HOST/mcp`, then `/mcp` to sign in.
+- **Claude Code**: `claude mcp add --scope user --transport http ledger https://HOST/mcp`, then
+  `/mcp` to sign in. Without `--scope user` the server is registered for the current directory
+  only, and seems to vanish in any other project.
 
 Either one opens a browser: sign in, check the consent page, which names the assistant and where
 access is going, and choose **Allow**. Then ask for the company's details, or a profit and loss

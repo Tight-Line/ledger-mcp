@@ -240,6 +240,7 @@ describe("refusals", () => {
     assert.match(response.headers.get("content-security-policy") ?? "", /form-action 'self' http:\/\/127\.0\.0\.1:9;/);
     const home = await fetch(`${h.base}/`);
     assert.match(home.headers.get("content-security-policy") ?? "", /form-action 'self';/);
+    assert.match(await home.text(), /claude mcp add --scope user --transport http ledger/);
   });
 
   test("denying sends the client access_denied and no code", async () => {
