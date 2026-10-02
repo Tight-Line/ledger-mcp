@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { after, before, describe, test } from "node:test";
 import { cookiesFrom, hop, location, pkce, startHarness, type Harness } from "./harness.js";
 
@@ -167,6 +168,8 @@ describe("an allowed user", () => {
       params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "test", version: "1" } },
     });
     assert.equal(init.status, 200);
+    const { version } = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8"));
+    assert.equal((await init.json()).result.serverInfo.version, version);
     const list = await mcp(tokens.access_token, { jsonrpc: "2.0", id: 2, method: "tools/list" });
     assert.equal(list.status, 200);
     const names = ((await list.json()).result.tools as { name: string }[]).map((t) => t.name);

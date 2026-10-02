@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
@@ -21,6 +22,9 @@ export interface AppDependencies {
 
 const SESSION_TTL = 12 * 60 * 60;
 const LOGIN_TTL = 10 * 60;
+
+// The version MCP clients see, from the one place it is written. dist/src/app.js -> package.json.
+const VERSION: string = createRequire(import.meta.url)("../../package.json").version;
 
 // What a sealed login state carries across the round trip to the identity provider. One
 // callback serves both kinds of sign-in: an MCP client's authorization request, which ends
@@ -221,7 +225,7 @@ export function createApp({ config, oidc, upstream, connection }: AppDependencie
   });
 
   app.post("/mcp", bearer, express.json({ limit: "25mb" }), async (req, res) => {
-    const server = new McpServer({ name: config.site.appName, version: "0.1.0" }, { capabilities: { tools: {} } });
+    const server = new McpServer({ name: config.site.appName, version: VERSION }, { capabilities: { tools: {} } });
     for (const tool of guarded) upstream.registerTool(server, tool);
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     res.on("close", () => {

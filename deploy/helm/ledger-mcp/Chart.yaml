@@ -2,5 +2,5 @@ apiVersion: v2
 name: ledger-mcp
 description: Intuit's QuickBooks Online MCP server, served remotely with OAuth sign-in and an email allowlist
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.1.1
+appVersion: "0.1.1"

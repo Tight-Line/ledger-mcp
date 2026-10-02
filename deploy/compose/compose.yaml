@@ -18,7 +18,7 @@ services:
       - caddy-data:/data
 
   ledger:
-    image: ghcr.io/tight-line/ledger-mcp:${LEDGER_VERSION:-0.1.0}
+    image: ghcr.io/tight-line/ledger-mcp:${LEDGER_VERSION:-0.1.1}
     restart: unless-stopped
     env_file: .env
     environment:
