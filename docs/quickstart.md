@@ -88,7 +88,7 @@ QUICKBOOKS_CLIENT_SECRET
 **Install.**
 
 ```sh
-helm upgrade --install ledger-mcp oci://ghcr.io/tight-line/charts/ledger-mcp --version 0.1.1 \
+helm upgrade --install ledger-mcp oci://ghcr.io/tight-line/charts/ledger-mcp --version 0.1.2 \
   -n ledger-mcp -f path/to/values.yaml --wait
 ```
 

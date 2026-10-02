@@ -64,6 +64,10 @@ function safeNext(value: unknown): string {
     : "/";
 }
 
+function csp(formAction: string): string {
+  return `default-src 'none'; style-src 'unsafe-inline'; form-action ${formAction}; frame-ancestors 'none'; base-uri 'none'`;
+}
+
 export function createApp({ config, oidc, upstream, connection }: AppDependencies): express.Express {
   const sealer = new Sealer(config.sealKey);
   const mcpUrl = new URL("/mcp", config.publicUrl);
@@ -194,7 +198,7 @@ export function createApp({ config, oidc, upstream, connection }: AppDependencie
     // real origin and a cross-site one still arrives as `null`, which is refused. Measured in a
     // browser on the first deploy; the tests set Origin by hand and could not see it.
     res.setHeader("Referrer-Policy", "same-origin");
-    res.setHeader("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'");
+    res.setHeader("Content-Security-Policy", csp("'self'"));
     if (secureCookies) res.setHeader("Strict-Transport-Security", "max-age=31536000");
     next();
   });
@@ -295,6 +299,13 @@ export function createApp({ config, oidc, upstream, connection }: AppDependencie
         sendPage(res, 403, pages.forbiddenPage(config, email, "use this server"));
         return;
       }
+      // form-action governs where a form submission may REDIRECT, not only where it posts, so
+      // under 'self' alone the browser refuses the 303 back to the client and Allow appears to do
+      // nothing: the response arrives, nothing follows it. Found on the first real sign-in from
+      // Claude Code, whose callback is http://localhost:<port>; tests follow redirects with fetch,
+      // which ignores CSP, so they could not see it. Widened on this page only, and only to the
+      // one origin this client registered and asked for.
+      res.setHeader("Content-Security-Policy", csp(`'self' ${new URL(state.pending.redirectUri).origin}`));
       sendPage(res, 200, pages.consentPage(config, provider.openConsent(consent)!, consent));
       return;
     }

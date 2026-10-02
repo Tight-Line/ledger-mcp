@@ -232,6 +232,16 @@ describe("refusals", () => {
     assert.match(html, /a program on this computer \(127\.0\.0\.1:9\)/);
   });
 
+  test("the consent page lets its form redirect to the client, and only to the client", async () => {
+    // A browser applies form-action to the redirect that follows a POST, so the consent page must
+    // name the client's origin or Allow is silently blocked. fetch ignores CSP, so check the header.
+    const client = await register();
+    const { response } = await signInAt(client.client_id, pkce().challenge, "nick@example.com");
+    assert.match(response.headers.get("content-security-policy") ?? "", /form-action 'self' http:\/\/127\.0\.0\.1:9;/);
+    const home = await fetch(`${h.base}/`);
+    assert.match(home.headers.get("content-security-policy") ?? "", /form-action 'self';/);
+  });
+
   test("denying sends the client access_denied and no code", async () => {
     const client = await register();
     const { response } = await signInAt(client.client_id, pkce().challenge, "nick@example.com");
