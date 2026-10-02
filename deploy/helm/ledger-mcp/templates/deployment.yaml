@@ -34,7 +34,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: ledger-mcp
-          image: "{{ .Values.image.repository }}:{{ required "image.tag is required" .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ include "ledger-mcp.tag" . }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

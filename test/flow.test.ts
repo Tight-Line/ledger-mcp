@@ -363,8 +363,12 @@ describe("the web pages", () => {
       assert.match(response.headers.get("content-type") ?? "", /text\/html/);
     }
     const eula = await (await fetch(`${h.base}/eula`)).text();
-    assert.match(eula, /laws of the State of Maine/);
-    assert.match(eula, /Franklin County, Maine/);
+    // Every legal particular comes from configuration; none is built in.
+    assert.match(eula, /laws of the State of Example/);
+    assert.match(eula, /Example County, Example/);
+    assert.match(eula, /Example Co LLC/);
+    const privacy = await (await fetch(`${h.base}/privacy`)).text();
+    assert.match(privacy, /operated by Example Co LLC in Exampleland/);
   });
 
   test("the referrer policy lets the browser send this site's origin on its own forms", async () => {
@@ -379,9 +383,14 @@ describe("the web pages", () => {
     assert.equal(response.status, 403);
   });
 
-  test("nothing on the pages names an Intuit trademark as the app's name", async () => {
+  test("the app's name is the configured one, made by Tight Line, with its source linked", async () => {
+    for (const page of ["/", "/eula", "/qbo/disconnected"]) {
+      const html = await (await fetch(`${h.base}${page}`)).text();
+      assert.match(html, /aria-label="Tight Line"/, page);
+      assert.match(html, /href="https:\/\/github\.com\/Tight-Line\/ledger-mcp"/, page);
+    }
     const home = await (await fetch(`${h.base}/`)).text();
-    assert.match(home, /<title>Tight Line Ledger Bridge<\/title>/);
+    assert.match(home, /<title>Example Ledger<\/title>/);
   });
 
   async function webSession(email: string): Promise<string> {

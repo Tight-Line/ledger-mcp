@@ -1,0 +1,39 @@
+# One host, no Kubernetes: the server plus Caddy, which obtains and renews a Let's Encrypt
+# certificate for LEDGER_HOSTNAME by itself. The host needs ports 80 and 443 open to the internet
+# and a DNS A record for LEDGER_HOSTNAME pointing at it.
+#
+#   cp .env.example .env    # then fill it in
+#   docker compose up -d
+#
+# Caddy passes X-Forwarded-For through, so the server's rate limits are per client address.
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      LEDGER_HOSTNAME: ${LEDGER_HOSTNAME:?set LEDGER_HOSTNAME in .env}
+    command: caddy reverse-proxy --from ${LEDGER_HOSTNAME} --to ledger:8080
+    volumes:
+      - caddy-data:/data
+
+  ledger:
+    image: ghcr.io/tight-line/ledger-mcp:${LEDGER_VERSION:-0.1.0}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PUBLIC_URL: https://${LEDGER_HOSTNAME}
+      QUICKBOOKS_TOKEN_STORE_PATH: /data/qbo-tokens.env
+    # Same hardening as the Kubernetes chart: nothing is written outside the volume and /tmp.
+    read_only: true
+    tmpfs: ["/tmp:size=512m"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    volumes:
+      # The QuickBooks refresh token. Upstream rotates it about daily; back this up, or be ready to
+      # reconnect from the start page if it is lost.
+      - ledger-data:/data
+
+volumes:
+  caddy-data:
+  ledger-data:

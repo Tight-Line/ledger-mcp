@@ -8,9 +8,6 @@
 kubeContext: my-cluster
 namespace: ledger-mcp
 
-image:
-  tag: ""
-
 publicUrl: https://ledger.example.com
 
 allowedEmails:
@@ -21,7 +18,12 @@ adminEmails:
   - alice@example.com
 
 site:
+  operator: Example Co LLC
   contactEmail: alice@example.com
+  legalEffectiveDate: January 1, 2026
+  governingLaw: the State of Delaware
+  venue: New Castle County, Delaware
+  hostingLocation: the United States
 
 quickbooks:
   # Switch to production, with production keys in the Secret, once Intuit has approved the app.

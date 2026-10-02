@@ -53,6 +53,27 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      # A version tag also publishes the chart, with chart version == appVersion == the tag, so the
+      # chart's default image is the image this same run just pushed. Refuse if the three disagree.
+      - name: Check versions agree
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          chart=$(awk '/^version:/{print $2}' deploy/helm/ledger-mcp/Chart.yaml)
+          app=$(awk '/^appVersion:/{gsub(/"/,"",$2); print $2}' deploy/helm/ledger-mcp/Chart.yaml)
+          pkg=$(node -p "require('./package.json').version")
+          echo "tag=$tag chart=$chart appVersion=$app package.json=$pkg"
+          [ "$tag" = "$chart" ] && [ "$tag" = "$app" ] && [ "$tag" = "$pkg" ]
+      - uses: azure/setup-helm@v4
+        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Publish the chart
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+          helm package deploy/helm/ledger-mcp --destination dist-chart
+          helm push dist-chart/ledger-mcp-*.tgz "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/charts"
+          echo "chart: oci://ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/charts/ledger-mcp ${GITHUB_REF_NAME#v}" >> "$GITHUB_STEP_SUMMARY"
+
       - name: What to deploy
         run: |
           echo "### Pushed" >> "$GITHUB_STEP_SUMMARY"

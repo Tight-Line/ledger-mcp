@@ -14,6 +14,13 @@ export function escapeHtml(value: unknown): string {
     .replaceAll("'", "&#39;");
 }
 
+// Who made the software, as distinct from who operates this deployment (config.site.operator).
+// Fixed, like any "made by" mark, and the same on every deployment.
+const MAKER_URL = "https://www.tightlinesoftware.com";
+const SOURCE_URL = "https://github.com/Tight-Line/ledger-mcp";
+// Tight Line's wordmark, inline so the Content-Security-Policy need not allow any image source.
+const WORDMARK = `<svg class="wordmark" role="img" aria-label="Tight Line" viewBox="0 0 152 26" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M32.2552 11.361L24.811 1.51718C23.7853 0.16115 21.8055 0.160833 20.7797 1.51687L19.9085 2.66883L26.4816 11.361C27.2101 12.3238 27.2098 13.6783 26.4816 14.6408L19.9078 23.331L20.7788 24.4827C21.8043 25.8387 23.7841 25.839 24.8098 24.483L32.2549 14.6408C32.983 13.6783 32.9834 12.3238 32.2552 11.361Z" fill="#0275D3"/> <path d="M5.54609 14.6395L12.9902 24.483C14.016 25.839 15.9958 25.839 17.0215 24.483L24.4666 14.6411C25.1947 13.6783 25.1947 12.3238 24.4666 11.361L17.0224 1.51718C15.997 0.16115 14.0172 0.160833 12.9915 1.51687L5.5464 11.3594C4.81792 12.3222 4.81792 13.6767 5.54609 14.6395Z" fill="#0275D3"/> <path d="M51.7469 8.87368H46.8554V19.8666H43.8271V8.87368H38.9353V6.17591H51.7469V8.87368Z" fill="#0275D3"/> <path d="M56.154 6.17556H53.1257V19.8662H56.154V6.17556Z" fill="#0275D3"/> <path d="M71.0428 18.4771C69.6064 19.5643 67.7817 20.1078 65.5105 20.1078C60.6578 20.1078 57.7847 17.4504 57.7847 13.081C57.7847 8.65178 60.7354 5.93367 65.3554 5.93367C67.238 5.93367 68.8494 6.37678 70.2859 7.32308L69.3928 9.86C68.0728 9.05452 66.8886 8.71217 65.5883 8.71217C62.6765 8.71217 60.8714 10.3832 60.8714 13.0409C60.8714 15.7187 62.6958 17.3296 65.7048 17.3296C66.5393 17.3296 67.3159 17.2088 68.0728 16.9469V14.5712H64.6759V11.8734H71.0428V18.4771Z" fill="#0275D3"/> <path d="M85.6795 6.17556V19.8662H82.6513V14.3296H75.8961V19.8662H72.8679V6.17556H75.8961V11.6318H82.6513V6.17556H85.6795Z" fill="#0275D3"/> <path d="M99.8699 8.87368H94.9784V19.8666H91.9502V8.87368H87.0583V6.17591H99.8699V8.87368Z" fill="#0275D3"/> <path d="M117.652 17.1685V19.8662H108.553C107.199 19.8662 106.102 18.7279 106.102 17.3233V6.17556H109.13V17.1685H117.652Z" fill="#0275D3"/> <path d="M122.365 6.17556H119.337V19.8662H122.365V6.17556Z" fill="#0275D3"/> <path d="M137.506 6.17556V19.8662H134.711L127.587 9.96044V19.8662H124.695V6.17556H128.286L134.614 14.9739V6.17556H137.506Z" fill="#0275D3"/> <path d="M142.864 8.87368V11.6322H150.512V14.3299H142.864V17.1688H151.774V19.8666H139.836V6.17591H151.774V8.87368H142.864Z" fill="#0275D3"/> </svg>`;
+
 const STYLE = `
 :root { --bg:#fbfaf7; --fg:#1d2327; --muted:#5c6770; --rule:#dcd8cf; --accent:#1f5f8b; --ok:#2e7d4f; --bad:#a23b2a; }
 @media (prefers-color-scheme: dark) { :root { --bg:#14181b; --fg:#e6e3dc; --muted:#9aa4ab; --rule:#2c3338; --accent:#7fb8de; --ok:#7cc59a; --bad:#e38b7a; } }
@@ -21,14 +28,17 @@ const STYLE = `
 body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 main { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; }
 header { border-bottom:1px solid var(--rule); margin-bottom:1.5rem; padding-bottom:1rem; }
+header { display:flex; flex-wrap:wrap; align-items:baseline; gap:.25rem .6rem; }
 header a.home { color:inherit; text-decoration:none; font-weight:600; font-size:1.1rem; }
+header a.maker { display:inline-flex; align-items:center; gap:.35rem; color:var(--muted); text-decoration:none; font-size:.85rem; }
+header .wordmark { height:14px; width:auto; }
 h1 { font-size:1.6rem; line-height:1.25; margin:0 0 .5rem; }
 h2 { font-size:1.15rem; margin:2rem 0 .5rem; }
 p, li { color:var(--fg); }
 .muted { color:var(--muted); }
 a { color:var(--accent); }
 footer { border-top:1px solid var(--rule); margin-top:3rem; padding-top:1rem; font-size:.9rem; color:var(--muted); }
-footer a { margin-right:1rem; }
+footer nav { display:flex; flex-wrap:wrap; gap:.25rem 1rem; }
 .status { border:1px solid var(--rule); border-radius:6px; padding:1rem 1.25rem; margin:1.5rem 0; }
 .ok { color:var(--ok); font-weight:600; } .bad { color:var(--bad); font-weight:600; }
 button, .button { display:inline-block; font:inherit; padding:.45rem 1rem; border-radius:5px; border:1px solid var(--accent); background:var(--accent); color:var(--bg); text-decoration:none; cursor:pointer; }
@@ -52,10 +62,10 @@ function layout(config: Config, title: string, body: string): string {
 </head>
 <body>
 <main>
-<header><a class="home" href="/">${escapeHtml(appName)}</a></header>
+<header><a class="home" href="/">${escapeHtml(appName)}</a><a class="maker" href="${MAKER_URL}">by ${WORDMARK}</a></header>
 ${body}
 <footer>
-<a href="/eula">End-User License Agreement</a><a href="/privacy">Privacy Policy</a>
+<nav><a href="/eula">End-User License Agreement</a><a href="/privacy">Privacy Policy</a><a href="${SOURCE_URL}">Source code</a></nav>
 <div>Operated by ${escapeHtml(operator)}. Contact <a href="mailto:${escapeHtml(config.site.contactEmail)}">${escapeHtml(config.site.contactEmail)}</a>.</div>
 </footer>
 </main>
@@ -99,11 +109,11 @@ ${actions}
     config,
     appName,
     `<h1>${escapeHtml(appName)}</h1>
-<p>${escapeHtml(appName)} is a private tool operated by ${escapeHtml(operator)} for its own bookkeeping. It
-lets a small number of named people at ${escapeHtml(operator)} reach the company's QuickBooks Online
-records from an AI assistant that supports the Model Context Protocol, such as Claude.</p>
-<p class="muted">It is not offered to the public, there is nothing to sign up for, and only
-pre-authorized accounts can sign in.</p>
+<p>${escapeHtml(appName)} connects AI assistants that support the Model Context Protocol, such as
+Claude, to a QuickBooks Online company operated by ${escapeHtml(operator)}. It is used by the people
+${escapeHtml(operator)} has authorized, from wherever they work.</p>
+<p class="muted">There is nothing to sign up for. Only accounts ${escapeHtml(operator)} has approved
+can sign in, and each person approves every assistant they connect.</p>
 ${account}
 <h2>Using it</h2>
 <p>Add this MCP server to your assistant:</p>
@@ -193,20 +203,20 @@ individual whom ${o} has authorized to use ${a} (the "Service"). By signing in t
 you agree to this Agreement. If you do not agree, do not use the Service.</p>
 
 <h2>1. What the Service is</h2>
-<p>The Service is a private, internally operated tool. It connects an AI assistant of your choosing,
-through the Model Context Protocol, to a QuickBooks Online company that belongs to ${o}, so that you
-can read and, where enabled, create or change accounting records in that company. The Service is
-not offered to the public and is not sold, licensed or distributed to anyone outside ${o}.</p>
+<p>The Service connects an AI assistant of your choosing, through the Model Context Protocol, to a
+QuickBooks Online company that ${o} has connected to it, so that you can read and, where enabled,
+create or change accounting records in that company. It is available only to people ${o} has
+authorized; there is no public sign-up.</p>
 
 <h2>2. Who may use it</h2>
-<p>Only people whose accounts ${o} has individually authorized may use the Service, and only for
-${o}'s business. Authorization is personal: you may not share your access, sign in on another
+<p>Only people whose accounts ${o} has authorized may use the Service, and only for the purposes
+${o} authorized them for. Authorization is personal: you may not share your access, sign in on another
 person's behalf, or let anyone else use a session or token issued to you. ${o} may grant, change or
 withdraw authorization at any time, for any reason, with immediate effect.</p>
 
 <h2>3. License</h2>
 <p>Subject to this Agreement, ${o} grants you a limited, revocable, non-exclusive, non-transferable
-license to use the Service for ${o}'s internal business purposes while you remain authorized. All
+license to use the Service for the purposes ${o} has authorized while you remain authorized. All
 rights not expressly granted are reserved.</p>
 
 <h2>4. Acceptable use</h2>
@@ -276,8 +286,8 @@ export function privacyPage(config: Config): string {
 <p class="muted">Effective ${escapeHtml(legalEffectiveDate)}</p>
 
 <p>This policy describes what ${a} (the "Service"), operated by ${o}, collects, why, and what happens
-to it. The Service is a private tool used only by people ${o} has authorized, to work with ${o}'s own
-QuickBooks Online company.</p>
+to it. The Service is used only by people ${o} has authorized, to work with a QuickBooks Online
+company ${o} has connected to it.</p>
 
 <h2>What the Service collects</h2>
 <ul>
@@ -312,7 +322,7 @@ and is handled under that assistant's own terms and privacy policy.</li>
 <p>${o} may also disclose information where required by law.</p>
 
 <h2>Storage and security</h2>
-<p>The Service runs on infrastructure operated by ${o} in the United States. Traffic to and from it is
+<p>The Service runs on infrastructure operated by ${o} in ${escapeHtml(config.site.hostingLocation)}. Traffic to and from it is
 encrypted with TLS. Stored OAuth tokens are kept on encrypted storage, accessible only to the Service and to the
 ${o} administrators who operate it.
 Tokens the Service issues to your assistant are encrypted and expire: access tokens after one hour,

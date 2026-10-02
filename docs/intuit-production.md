@@ -10,7 +10,7 @@ used only for the owner's own company, gets no exemption from any of it.
 
 | Field | Value |
 |---|---|
-| App name | Tight Line Ledger Bridge. No "QuickBooks", "QB", "QBO", "Intuit", "quick" or sound-alikes. |
+| App name | Yours; it need not match `APP_NAME`. No "QuickBooks", "QB", "QBO", "Intuit", "quick" or sound-alikes. |
 | Host domain | `HOST` (no scheme) |
 | Launch URL | `https://HOST/` |
 | Disconnect URL | `https://HOST/qbo/disconnected` |
@@ -19,7 +19,7 @@ used only for the owner's own company, gets no exemption from any of it.
 | Privacy policy URL | `https://HOST/privacy` |
 | Categories | Accounting (plus anything else that genuinely applies, up to four) |
 | Regulated industries | None. Ticking Lending adds a whole lending section to the questionnaire. |
-| Where hosted | United States |
+| Where hosted | Wherever it runs; match `HOSTING_LOCATION`. |
 | Redirect URIs (Production) | `https://HOST/qbo/callback` |
 
 All of these share the host domain. Intuit does not document whether that is required, and its own
@@ -39,13 +39,14 @@ What each URL does, since reviewers may open them:
 Answer truthfully; these notes say what is true of this deployment, so you do not have to work it
 out under the form's time pressure.
 
-**App information.** Built in-house. Private, used only by Tight Line LLC for its own company.
-Users are Tight Line staff named individually.
+**App information.** Built on an open-source server (this one), deployed and operated by you.
+Private: used only by the people on your allowlist, for the company you connect. Users are named
+individually, or by your own email domain.
 
 **Authorization and authentication.**
 
-- Tested connect, disconnect and reconnect on a sandbox company: yes, if you did install.md step
-  6. Do it before starting the questionnaire.
+- Tested connect, disconnect and reconnect on a sandbox company: yes, if you did part 2 of the
+  [quickstart](quickstart.md). Do it before starting the questionnaire.
 - Refresh: on demand, five minutes before the one-hour access token expires. Concurrent callers
   share one in-flight refresh, so the token is never refreshed twice at once. The newest refresh
   token is always persisted, since Intuit invalidates the previous one on rotation.
@@ -80,4 +81,4 @@ it. If the questionnaire insists, answer no; it is an upstream change, not a set
 
 ## After approval
 
-Copy the production Client ID and Secret and follow install.md step 7.
+Copy the production Client ID and Secret and follow part 3 of the [quickstart](quickstart.md).

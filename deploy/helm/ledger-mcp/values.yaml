@@ -3,6 +3,8 @@
 
 image:
   repository: ghcr.io/tight-line/ledger-mcp
+  # Defaults to the chart's appVersion, so pinning a chart version pins the image too. Set it only
+  # to run a build that has no release, such as a sha-<short> tag from a push to main.
   tag: ""
   pullPolicy: IfNotPresent
 
@@ -26,14 +28,22 @@ clientRedirectUris:
   - https://claude.ai/api/mcp/auth_callback
   - loopback
 
-# Shown on the EULA, privacy policy and error pages.
+# Shown on the start page, the EULA, the privacy policy and every error page. All but appName are
+# required: the legal pages state them as fact, so there is no safe default for any of them.
 site:
-  appName: Tight Line Ledger Bridge
-  operator: Tight Line LLC
+  # Must not contain "QuickBooks", "QB", "QBO", "Intuit" or similar; Intuit rejects app names that do.
+  appName: Ledger Bridge
+  # The legal entity running this deployment, e.g. "Example Co LLC".
+  operator: ""
   contactEmail: ""
-  legalEffectiveDate: October 1, 2026
-  governingLaw: the State of Maine
-  venue: Franklin County, Maine
+  # e.g. "January 1, 2026". Change it when you change the terms.
+  legalEffectiveDate: ""
+  # Completes "governed by the laws of ...", e.g. "the State of Delaware".
+  governingLaw: ""
+  # Completes "courts located in ...", e.g. "New Castle County, Delaware".
+  venue: ""
+  # Completes "infrastructure operated by <operator> in ...", e.g. "the United States".
+  hostingLocation: ""
 
 oidc:
   # Any OpenID Connect provider. The client ID and secret come from the Secret, not from here.

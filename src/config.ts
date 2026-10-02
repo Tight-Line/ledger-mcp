@@ -33,7 +33,9 @@ export interface Config {
     redirectUri: string;
   };
 
-  // Shown on the public pages, including the EULA and privacy policy.
+  // Shown on the public pages, including the EULA and privacy policy. The legal ones have no
+  // defaults: a deployment that silently inherited someone else's governing law or hosting
+  // location would publish a policy that is untrue, which is worse than not starting.
   site: {
     appName: string;
     operator: string;
@@ -41,6 +43,7 @@ export interface Config {
     legalEffectiveDate: string;
     governingLaw: string;
     venue: string;
+    hostingLocation: string;
   };
 
   toolTimeoutMs: number;
@@ -123,12 +126,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       redirectUri: new URL("/qbo/callback", publicUrl).href,
     },
     site: {
-      appName: env.APP_NAME?.trim() || "Tight Line Ledger Bridge",
-      operator: env.OPERATOR_NAME?.trim() || "Tight Line LLC",
+      // Must not contain Intuit's marks; the Intuit Developer Portal rejects app names that do.
+      appName: env.APP_NAME?.trim() || "Ledger Bridge",
+      operator: required(env, "OPERATOR_NAME"),
       contactEmail: required(env, "CONTACT_EMAIL"),
-      legalEffectiveDate: env.LEGAL_EFFECTIVE_DATE?.trim() || "October 1, 2026",
-      governingLaw: env.GOVERNING_LAW?.trim() || "the State of Maine",
-      venue: env.GOVERNING_VENUE?.trim() || "Franklin County, Maine",
+      legalEffectiveDate: required(env, "LEGAL_EFFECTIVE_DATE"),
+      governingLaw: required(env, "GOVERNING_LAW"),
+      venue: required(env, "GOVERNING_VENUE"),
+      hostingLocation: required(env, "HOSTING_LOCATION"),
     },
     toolTimeoutMs: Number(env.TOOL_TIMEOUT_MS ?? 120_000),
   };

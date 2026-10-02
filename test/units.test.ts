@@ -2,9 +2,44 @@ import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { describe, test } from "node:test";
 import { EmailAllowlist } from "../src/allowlist.js";
+import { loadConfig } from "../src/config.js";
 import { GRANT_TTL, LedgerOAuthProvider, type PendingAuthorization } from "../src/oauth-provider.js";
 import { RedirectPolicy } from "../src/redirect-policy.js";
 import { Sealer } from "../src/seal.js";
+
+describe("loadConfig", () => {
+  const complete = {
+    PUBLIC_URL: "https://ledger.example.com",
+    SEAL_KEY: randomBytes(32).toString("base64"),
+    OIDC_CLIENT_ID: "c",
+    OIDC_CLIENT_SECRET: "s",
+    ALLOWED_EMAILS: "*@example.com",
+    ADMIN_EMAILS: "a@example.com",
+    QUICKBOOKS_CLIENT_ID: "q",
+    QUICKBOOKS_CLIENT_SECRET: "q",
+    QUICKBOOKS_TOKEN_STORE_PATH: "/data/t.env",
+    CONTACT_EMAIL: "a@example.com",
+    OPERATOR_NAME: "Example Co",
+    LEGAL_EFFECTIVE_DATE: "January 1, 2026",
+    GOVERNING_LAW: "the State of Example",
+    GOVERNING_VENUE: "Example County",
+    HOSTING_LOCATION: "Exampleland",
+  };
+
+  test("a complete environment loads", () => {
+    assert.equal(loadConfig(complete).site.operator, "Example Co");
+  });
+
+  test("every legal particular is required; none is defaulted", () => {
+    for (const key of ["OPERATOR_NAME", "LEGAL_EFFECTIVE_DATE", "GOVERNING_LAW", "GOVERNING_VENUE", "HOSTING_LOCATION", "CONTACT_EMAIL"]) {
+      assert.throws(() => loadConfig({ ...complete, [key]: "" }), new RegExp(key), key);
+    }
+  });
+
+  test("a wildcard admin is refused", () => {
+    assert.throws(() => loadConfig({ ...complete, ADMIN_EMAILS: "*@example.com" }), /wildcards/);
+  });
+});
 
 describe("EmailAllowlist", () => {
   test("exact addresses, case-insensitively", () => {

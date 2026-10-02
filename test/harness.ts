@@ -129,6 +129,12 @@ export async function startHarness(env: Record<string, string> = {}): Promise<Ha
     QUICKBOOKS_ENVIRONMENT: "sandbox",
     QUICKBOOKS_TOKEN_STORE_PATH: path.join(dataDir, "qbo-tokens.env"),
     CONTACT_EMAIL: "legal@example.com",
+    APP_NAME: "Example Ledger",
+    OPERATOR_NAME: "Example Co LLC",
+    LEGAL_EFFECTIVE_DATE: "January 1, 2026",
+    GOVERNING_LAW: "the State of Example",
+    GOVERNING_VENUE: "Example County, Example",
+    HOSTING_LOCATION: "Exampleland",
     ...env,
   });
 

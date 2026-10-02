@@ -18,8 +18,9 @@ data:
   QUICKBOOKS_DISABLE_UPDATE: {{ .Values.quickbooks.disableUpdate | toString | quote }}
   QUICKBOOKS_DISABLE_DELETE: {{ .Values.quickbooks.disableDelete | toString | quote }}
   APP_NAME: {{ .Values.site.appName | quote }}
-  OPERATOR_NAME: {{ .Values.site.operator | quote }}
+  OPERATOR_NAME: {{ required "site.operator is required" .Values.site.operator | quote }}
   CONTACT_EMAIL: {{ required "site.contactEmail is required" .Values.site.contactEmail | quote }}
-  LEGAL_EFFECTIVE_DATE: {{ .Values.site.legalEffectiveDate | quote }}
-  GOVERNING_LAW: {{ .Values.site.governingLaw | quote }}
-  GOVERNING_VENUE: {{ .Values.site.venue | quote }}
+  LEGAL_EFFECTIVE_DATE: {{ required "site.legalEffectiveDate is required" .Values.site.legalEffectiveDate | quote }}
+  GOVERNING_LAW: {{ required "site.governingLaw is required" .Values.site.governingLaw | quote }}
+  GOVERNING_VENUE: {{ required "site.venue is required" .Values.site.venue | quote }}
+  HOSTING_LOCATION: {{ required "site.hostingLocation is required" .Values.site.hostingLocation | quote }}
