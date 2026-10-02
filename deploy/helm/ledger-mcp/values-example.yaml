@@ -1,0 +1,31 @@
+# An example deployment. Copy this file somewhere outside the repository, since it names your
+# hostname and the people allowed in, and pass its path to the scripts:
+#
+#   deploy/secret.sh path/to/values.yaml
+#   deploy/deploy.sh path/to/values.yaml sha-abc1234
+
+# Read by deploy/secret.sh and deploy/deploy.sh, not by the chart.
+kubeContext: my-cluster
+namespace: ledger-mcp
+
+image:
+  tag: ""
+
+publicUrl: https://ledger.example.com
+
+allowedEmails:
+  - alice@example.com
+  - "*@example.com"
+
+adminEmails:
+  - alice@example.com
+
+site:
+  contactEmail: alice@example.com
+
+quickbooks:
+  # Switch to production, with production keys in the Secret, once Intuit has approved the app.
+  environment: sandbox
+
+networkPolicy:
+  ingressNamespace: ingress-nginx

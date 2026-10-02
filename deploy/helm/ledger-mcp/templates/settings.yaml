@@ -1,0 +1,25 @@
+{{- if eq (len .Values.allowedEmails) 0 }}{{ fail "allowedEmails must name at least one address or *@domain" }}{{ end -}}
+{{- if eq (len .Values.adminEmails) 0 }}{{ fail "adminEmails must name at least one address" }}{{ end -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ledger-mcp.fullname" . }}
+  labels:
+    {{- include "ledger-mcp.labels" . | nindent 4 }}
+data:
+  PUBLIC_URL: {{ .Values.publicUrl | quote }}
+  ALLOWED_EMAILS: {{ join "," .Values.allowedEmails | quote }}
+  ADMIN_EMAILS: {{ join "," .Values.adminEmails | quote }}
+  CLIENT_REDIRECT_URIS: {{ join "," .Values.clientRedirectUris | quote }}
+  OIDC_ISSUER: {{ .Values.oidc.issuer | quote }}
+  QUICKBOOKS_ENVIRONMENT: {{ .Values.quickbooks.environment | quote }}
+  QUICKBOOKS_TOKEN_STORE_PATH: /data/qbo-tokens.env
+  QUICKBOOKS_DISABLE_WRITE: {{ .Values.quickbooks.disableWrite | toString | quote }}
+  QUICKBOOKS_DISABLE_UPDATE: {{ .Values.quickbooks.disableUpdate | toString | quote }}
+  QUICKBOOKS_DISABLE_DELETE: {{ .Values.quickbooks.disableDelete | toString | quote }}
+  APP_NAME: {{ .Values.site.appName | quote }}
+  OPERATOR_NAME: {{ .Values.site.operator | quote }}
+  CONTACT_EMAIL: {{ required "site.contactEmail is required" .Values.site.contactEmail | quote }}
+  LEGAL_EFFECTIVE_DATE: {{ .Values.site.legalEffectiveDate | quote }}
+  GOVERNING_LAW: {{ .Values.site.governingLaw | quote }}
+  GOVERNING_VENUE: {{ .Values.site.venue | quote }}

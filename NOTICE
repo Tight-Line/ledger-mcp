@@ -1,0 +1,23 @@
+ledger-mcp
+Copyright (c) 2026 Tight Line LLC. Licensed under the MIT License; see LICENSE.
+
+The MIT License covers the source in this repository only, which contains no upstream
+source code. The container image built from it also includes, unmodified, the following
+software under its own license:
+
+  QuickBooks Online MCP Server
+  https://github.com/intuit/quickbooks-online-mcp-server
+  Copyright 2025 Intuit, Inc.
+  Licensed under the Apache License, Version 2.0. A copy is included in the image at
+  /app/node_modules/@qboapi/qbo-mcp-server/LICENSE.
+
+  Upstream's package.json declares "MIT" while its LICENSE file is the Apache License 2.0.
+  This project treats it as Apache-2.0, the more demanding of the two, and meets that
+  license's conditions: the license text and this notice travel with every image, and the
+  upstream code is redistributed without modification.
+
+Other npm dependencies included in the image carry their own licenses, recorded in each
+package under /app/node_modules.
+
+QuickBooks and Intuit are trademarks of Intuit Inc. This project is not affiliated with,
+endorsed by or sponsored by Intuit.

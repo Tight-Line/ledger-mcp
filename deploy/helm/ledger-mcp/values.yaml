@@ -1,0 +1,91 @@
+# Defaults for any deployment. A site supplies the hostname, who may use it, and the image tag;
+# see values-example.yaml for a complete example.
+
+image:
+  repository: ghcr.io/tight-line/ledger-mcp
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# The public origin, with no path. Every URL Intuit and the identity provider are given is
+# derived from it, so it must be the name people actually reach.
+publicUrl: ""
+
+# Who may use the MCP endpoint: exact addresses, or *@domain for everyone at exactly that domain
+# (not its subdomains). Checked on every request, so removing an entry and redeploying ends that
+# person's access at their next request. An empty list refuses to start.
+allowedEmails: []
+
+# Who may connect or disconnect the QuickBooks company. Exact addresses only; a wildcard is
+# refused at startup, since whoever connects decides which company every user's tools act on.
+adminEmails: []
+
+# Where an MCP client may have its authorization code sent: exact https URLs, or `loopback` for
+# programs on the user's own machine (Claude Code). Registration is open to anyone, so without
+# this list a stranger could register their own server as a redirect and phish a code with a link.
+clientRedirectUris:
+  - https://claude.ai/api/mcp/auth_callback
+  - loopback
+
+# Shown on the EULA, privacy policy and error pages.
+site:
+  appName: Tight Line Ledger Bridge
+  operator: Tight Line LLC
+  contactEmail: ""
+  legalEffectiveDate: October 1, 2026
+  governingLaw: the State of Maine
+  venue: Franklin County, Maine
+
+oidc:
+  # Any OpenID Connect provider. The client ID and secret come from the Secret, not from here.
+  issuer: https://accounts.google.com
+
+quickbooks:
+  # sandbox until Intuit has issued production keys; the keys in the Secret must match.
+  environment: sandbox
+  # Upstream's switches. Read tools are always available. Each of these hides a whole category
+  # of tools from every user.
+  disableWrite: false
+  disableUpdate: false
+  disableDelete: false
+
+# Created out of band by deploy/secret.sh, never by this chart, so no credential passes through
+# helm values or appears in a `helm diff`. Keys: SEAL_KEY, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET,
+# QUICKBOOKS_CLIENT_ID, QUICKBOOKS_CLIENT_SECRET.
+existingSecret: ledger-mcp
+
+ingress:
+  enabled: true
+  # Whichever ingress class is reachable from the internet. Intuit and the identity provider
+  # redirect browsers here, so it cannot be internal-only; the application's own sign-in is the
+  # access control.
+  className: public
+
+# The QuickBooks token store. Upstream rotates the refresh token about daily and writes the new
+# one here; lose this volume and an administrator reconnects, which takes a minute. Retain, and
+# kept on uninstall, so that is a choice rather than a side effect of `helm uninstall`.
+persistence:
+  storageClass: standard-retain
+  size: 64Mi
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 192Mi
+
+# Upstream spools file_url attachment downloads (up to QBO's 100 MB limit) through /tmp.
+tmpSizeLimit: 512Mi
+
+networkPolicy:
+  enabled: true
+  # Only pods in the ingress controller's namespace may connect. Required when enabled. Probes come
+  # from the node and are not affected.
+  ingressNamespace: ""
+  # Outbound: DNS, and https to public addresses (Google, Intuit). Nothing on private ranges, so a
+  # tool asked to fetch a URL cannot be pointed at something inside the lab.
+  dnsNamespace: kube-system
+  deniedEgressCidrs:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+    - 100.64.0.0/10
+    - 169.254.0.0/16
